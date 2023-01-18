@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body class ="p-3 mb-2 bg-secondary">
+
+<div class ="container">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link" href="#" th:href="@{/}">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#" th:href="@{/contacts}">Address Book</a></li>
+          <li class="nav-item" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/login}">Log in</a></li>
+          <li class="nav-item dropdown" sec:authorize="isAuthenticated()"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><i class="bi bi-person-circle"></i>
+            <span sec:authentication="principal.username">User</span></a>
+          <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item" href="#" th:href="@{/logout}">Log out</a></li>
+          </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <br>
+  <form autocomplete="off">
+    <div class="autocomplete" style="width:300px;display:inline-block">
+      <input id="searchInput" type="text" name="search" placeholder="Search..." style="vertical-align: middle">
+    </div>
+    <button type="button" class="btn btn-primary" id = "searchButton" style="vertical-align: middle"><span class="bi-search"></span> Search</button>
+
+    <div  style="display: flex;">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox"  id="byFirstName" checked >
+      <label class="form-check-label" for="byFirstName">
+        By firstname
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox"  id="byLastName">
+      <label class="form-check-label" for="byLastName">
+        By lastname
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="byAddress">
+      <label class="form-check-label" for="byAddress">
+        By address
+      </label>
+    </div>
+    </div>
+  </form>
+
+  <div class="table-responsive-sm" style="position:relative; height : 700px; overflow :auto;" >
+<table class="table table-bordered table-dark" id="contacts_table">
+  <thead style="top: 0; position: sticky;" class="table-dark">
+  <tr class = "table-secondary">
+    <th scope="col">ID</th>
+    <th scope="col">First Name</th>
+    <th scope="col">Last Name</th>
+    <th scope="col">Address</th>
+    <th scope="col">Phone Number</th>
+    <th scope="col" style="text-align:center;" id = "header_buttons">
+      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#add-modal">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-add" viewBox="0 0 16 16">
+        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Zm-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
+        <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z"></path>
+      </svg>
+    </button>
+
+      <button type="button" class="btn btn-info" id ="export_csv_button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM3.517 14.841a1.13 1.13 0 0 0 .401.823c.13.108.289.192.478.252.19.061.411.091.665.091.338 0 .624-.053.859-.158.236-.105.416-.252.539-.44.125-.189.187-.408.187-.656 0-.224-.045-.41-.134-.56a1.001 1.001 0 0 0-.375-.357 2.027 2.027 0 0 0-.566-.21l-.621-.144a.97.97 0 0 1-.404-.176.37.37 0 0 1-.144-.299c0-.156.062-.284.185-.384.125-.101.296-.152.512-.152.143 0 .266.023.37.068a.624.624 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.092 1.092 0 0 0-.2-.566 1.21 1.21 0 0 0-.5-.41 1.813 1.813 0 0 0-.78-.152c-.293 0-.551.05-.776.15-.225.099-.4.24-.527.421-.127.182-.19.395-.19.639 0 .201.04.376.122.524.082.149.2.27.352.367.152.095.332.167.539.213l.618.144c.207.049.361.113.463.193a.387.387 0 0 1 .152.326.505.505 0 0 1-.085.29.559.559 0 0 1-.255.193c-.111.047-.249.07-.413.07-.117 0-.223-.013-.32-.04a.838.838 0 0 1-.248-.115.578.578 0 0 1-.255-.384h-.765ZM.806 13.693c0-.248.034-.46.102-.633a.868.868 0 0 1 .302-.399.814.814 0 0 1 .475-.137c.15 0 .283.032.398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.441 1.441 0 0 0-.489-.272 1.838 1.838 0 0 0-.606-.097c-.356 0-.66.074-.911.223-.25.148-.44.359-.572.632-.13.274-.196.6-.196.979v.498c0 .379.064.704.193.976.131.271.322.48.572.626.25.145.554.217.914.217.293 0 .554-.055.785-.164.23-.11.414-.26.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.799.799 0 0 1-.118.363.7.7 0 0 1-.272.25.874.874 0 0 1-.401.087.845.845 0 0 1-.478-.132.833.833 0 0 1-.299-.392 1.699 1.699 0 0 1-.102-.627v-.495Zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879l-1.327 4Z"/>
+        </svg>
+      </button>
+
+    </th>
+  </tr>
+  </thead>
+  <tbody id = "contactsTable">
+  <tr th:each="contact: ${contacts}">
+    <td th:text="${contact.id}"></td>
+    <td th:text="${contact.firstName}"></td>
+    <td th:text="${contact.lastName}"></td>
+    <td th:text="${contact.address}"></td>
+    <td th:text="${contact.phoneNumber}"></td>
+    <td align ="center" class = "row_buttons">
+      <button type="button" class="btn btn-primary editButton" data-bs-toggle="modal" data-bs-target="#edit-modal">Edit</button>
+      <button type="button" class="btn btn-danger removeButton"  data-bs-toggle="modal" data-bs-target="#remove-modal">Remove</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+
+
+  </div>
+
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="add-modal">
+
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:black">Add contact</h5>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/contacts/add}" th:object="${contact}" id = "add-form"  method="post" style="color:black">
+          <div class="form-group">
+            <label for="editFirstName" >First Name</label>
+            <input type="text" class="form-control" th:field ="*{firstName}" id="addFirstName" name ="firstName" placeholder="Enter first name" required
+                   minlength="1" maxlength="30">
+          </div>
+
+          <div class="form-group">
+            <label for="editLastName">Last Name</label>
+            <input type="text"  class="form-control" th:field ="*{lastName}" id="addLastName" name="lastName" placeholder="Enter last name" required
+                   minlength="1" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label for="editAddress">Address</label>
+            <input type="text"  class="form-control" th:field ="*{address}" id="addAddress" name="address" placeholder="Enter address" required
+                   minlength="10" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label for="editPhoneNumber">Phone Number</label>
+            <input type="text" class="form-control" th:field ="*{phoneNumber}" id="addPhoneNumber" name="phoneNumber" placeholder="Enter phone number" required
+                   minlength="10" maxlength="30">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="add-button">Add</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit Modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="edit-modal">
+
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:black">Edit contact</h5>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/contacts/update}" th:object="${contact}" id = "edit-form"  method="post" style="color:black">
+          <div class="form-group" hidden>
+            <label for="editId">Id</label>
+            <input type="text" class="form-control" th:field ="*{id}" id="editId" name ="id" placeholder="Enter id">
+          </div>
+
+          <div class="form-group">
+            <label for="editFirstName" >First Name</label>
+            <input type="text" class="form-control" th:field ="*{firstName}" id="editFirstName" name ="firstName" placeholder="Enter first name" required
+            minlength="1" maxlength="30">
+          </div>
+
+          <div class="form-group">
+            <label for="editLastName">Last Name</label>
+            <input type="text"  class="form-control" th:field ="*{lastName}" id="editLastName" name="lastName" placeholder="Enter last name" required
+                   minlength="1" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label for="editAddress">Address</label>
+            <input type="text"  class="form-control" th:field ="*{address}" id="editAddress" name="address" placeholder="Enter address" required
+                   minlength="10" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label for="editPhoneNumber">Phone Number</label>
+            <input type="text" class="form-control" th:field ="*{phoneNumber}" id="editPhoneNumber" name="phoneNumber" placeholder="Enter phone number" required
+                   minlength="10" maxlength="30">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="save-changes-button">Save changes</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Remove modal-->
+<div class="modal" tabindex="-1" role="dialog" id="remove-modal" >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="justify-content: center">
+        <h5 class="col-12 modal-title text-center" style="color:black;">Warning !</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center" style="color:black;justify-content: center">
+        <h5>Are you user you want to delete this contact ?</h5>
+      </div>
+      <div class="modal-footer" style="justify-content: center">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-danger confirm-remove-button">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+<script type = "text/javascript" src = "../static/prefill_edit_modal.js" th:src="@{prefill_edit_modal.js}"></script>
+<script type = "text/javascript" src = "../static/search.js" th:src="@{search.js}"></script>
+<script type = "text/javascript" src = "../static/export_csv.js" th:src="@{export_csv.js}"></script>
+<script type = "text/javascript" src = "../static/crud.js" th:src="@{crud.js}"></script>
+<link rel="stylesheet" href = "../static/search.css" th:href="@{search.css}">
+
+</html>

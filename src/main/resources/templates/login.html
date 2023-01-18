@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+</head>
+
+<body class="p-3 mb-2 bg-dark">
+
+<div class="container">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item"><a class="nav-link" href="#" th:href="@{/}">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#" th:href="@{/contacts}">Address Book</a></li>
+          <li class="nav-item" sec:authorize="isAnonymous()"><a class="nav-link" th:href="@{/login}">Log in</a></li>
+          <li class="nav-item dropdown" sec:authorize="isAuthenticated()"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"><i class="bi bi-person-circle"></i>
+            <span sec:authentication="principal.username">User</span></a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><a class="dropdown-item" href="#" th:href="@{/logout}">Log out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+<div class="d-flex align-items-center h-100 gradient-custom-3 bg-dark">
+  <div class="container h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+        <div class="card" style="border-radius: 15px;">
+          <div class="card-body p-5">
+            <h2 class="text-uppercase text-center mb-5">Login</h2>
+
+            <form th:action="@{/login}" method="post">
+
+              <!-- error message -->
+              <div th:if="${param.error}">
+                <div class="alert alert-danger">Invalid username or
+                  password.</div>
+              </div>
+
+              <!-- logout message -->
+              <div th:if="${param.logout}">
+                <div class="alert alert-info">You have been logged out.</div>
+              </div>
+
+              <div class = "form-group">
+                <label class = "form-label" for="username">Username</label>
+                <input id="username" name = "username" class="form-control form-control-lg" required autofocus="autofocus"/>
+              </div>
+              <div class = "form-group" >
+                <label class = "form-label" for="password">Password</label>
+                <input id="password" name = "password" class="form-control form-control-lg" type = "password"  required autofocus="autofocus"/>
+                <i class="fa fa-eye" aria-hidden="true" style="float:right;margin-top:-30px;margin-right:15px" id="togglePassword"></i>
+              </div>
+              <br>
+              <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body" name="login-submit" id="login-submit" value="Log In">Login</button>
+              </div>
+
+              <p class="text-center text-muted mt-5 mb-0">You don't have an account?
+                <a href="/" th:href ="@{/registration}" class="fw-bold text-body"><u>Register here</u></a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+<script type = "text/javascript"  src = "../static/login_validation.js" th:src="@{login_validation.js}"></script>
+</html>
